@@ -105,7 +105,7 @@ class ServerSideTable(object):
         '''
         def is_reverse(str_direction):
             ''' Maps the 'desc' and 'asc' words to True or False. '''
-            return True if str_direction == 'desc' else False
+            return str_direction == 'desc'
 
         if (self.request_values['iSortCol_0'] != "") and (int(self.request_values['iSortingCols']) > 0):
             for i in range(0, int(self.request_values['iSortingCols'])):
@@ -134,10 +134,10 @@ class ServerSideTable(object):
         '''
         def requires_pagination():
             ''' Check if the table is going to be paginated '''
-            if self.request_values['iDisplayStart'] != "":
-                if int(self.request_values['iDisplayLength']) != -1:
-                    return True
-            return False
+            return (
+                self.request_values['iDisplayStart'] != ""
+                and int(self.request_values['iDisplayLength']) != -1
+            )
 
         if not requires_pagination():
             return data
@@ -167,9 +167,9 @@ class ServerSideTable(object):
         Return:
             Content of the response.
         '''
-        output = {}
-        output['sEcho'] = str(int(self.request_values['sEcho']))
-        output['iTotalRecords'] = str(self.cardinality)
-        output['iTotalDisplayRecords'] = str(self.cardinality_filtered)
-        output['data'] = self.result_data
-        return output
+        return {
+            'sEcho': str(int(self.request_values['sEcho'])),
+            'iTotalRecords': str(self.cardinality),
+            'iTotalDisplayRecords': str(self.cardinality_filtered),
+            'data': self.result_data,
+        }
